@@ -21,9 +21,13 @@ app.get('/', (req, res) => {
 const getTenantId = () => {
   console.log(`Tenants: ${xero.tenants}`)
   const sortedTenants = xero.tenants.sort((tenantA, tenantB) => new Date(tenantA.updatedDateUtc) < new Date(tenantB.updatedDateUtc));
-  const { tenantId } = sortedTenants[sortedTenants.length - 1];
 
-  return tenantId
+  if (sortedTenants.length) {
+    const { tenantId } = sortedTenants[sortedTenants.length - 1];
+    return tenantId
+  } else {
+    console.warn('No tenants for this account')
+  }
 }
 
 const getOrganisation = async (tenantId) => {
