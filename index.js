@@ -15,7 +15,7 @@ const xero = new XeroClient({
 const app = express();
 
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '/public/index.html'))
+  res.redirect('https://login.xero.com/identity/connect/authorize?response_type=code&client_id=7B0DDDBFA1C04610AD6E4EC9AF452CA7&redirect_uri=https://xero-poc.herokuapp.com/callback&scope=offline_access openid profile email accounting.transactions accounting.settings accounting.contacts.read')
 })
 
 const getTenantId = async () => {
@@ -67,7 +67,7 @@ app.get('/callback', async (req, res) => {
     console.log('getting contact counts')
     const contactsCount = await getContactsCount(tenantId);
     console.log('count: ', contactsCount)
-    res.redirect(`https://yordex.com/book-a-demo?lastName=${encodeURIComponent(family_name)}&firstName=${encodeURIComponent(given_name)}&email=${encodeURIComponent(email)}&company=${encodeURIComponent(organisation.name)}`)
+    res.redirect(`https://yordex.webflow.io/book-a-demo?lastName=${encodeURIComponent(family_name)}&firstName=${encodeURIComponent(given_name)}&email=${encodeURIComponent(email)}&company=${encodeURIComponent(organisation.name)}`)
   } catch (error) {
     console.error(error)
     res.send('Error occurred! ☠')
