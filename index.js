@@ -1,6 +1,5 @@
 const { XeroClient } = require('xero-node');
 const express = require('express');
-const path = require('path');
 const jwtDecode = require('jwt-decode');
 
 const port = process.env.PORT || 8080;
@@ -27,7 +26,7 @@ const getTenantId = async () => {
 
 const getOrganisation = async (tenantId) => {
   const organisation = (await xero.accountingApi.getOrganisations(tenantId)).body.organisations[0];
-  return organisation
+  return organisation;
 }
 
 app.get('/callback', async (req, res) => {
@@ -35,21 +34,19 @@ app.get('/callback', async (req, res) => {
   const { given_name, family_name, email } = jwtDecode(id_token);
 
   try {
-    console.log('======================================')
-    console.log('getting tenant')
+    console.log('Getting tenant')
     const tenantId = await getTenantId()
     console.log('tenantId:', tenantId)
-    console.log('======================================')
-    console.log('getting organisation')
+
+    console.log('Getting organisation')
     const organisation = await getOrganisation(tenantId);
     console.log('organisation: ', organisation)
-    console.log('======================================')
-    console.log('redirect')
+
+    console.log('redirect to the website with query params')
     res.redirect(`https://yordex.webflow.io/book-a-demo?lastName=${encodeURIComponent(family_name)}&firstName=${encodeURIComponent(given_name)}&email=${encodeURIComponent(email)}&company=${encodeURIComponent(organisation.legalName)}`)
   } catch (error) {
     console.error(error)
     res.send('Error occurred! ☠')
-    return
   }
 })
 
