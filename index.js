@@ -18,16 +18,11 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '/public/index.html'))
 })
 
-const getTenantId = () => {
-  console.log(`Tenants: ${xero.tenants}`)
-  const sortedTenants = xero.tenants.sort((tenantA, tenantB) => new Date(tenantA.updatedDateUtc) < new Date(tenantB.updatedDateUtc));
+const getTenantId = async () => {
+  await xero.updateTenants(false);
+  const activeTenant = xero.tenants[0];
 
-  if (sortedTenants.length) {
-    const { tenantId } = sortedTenants[sortedTenants.length - 1];
-    return tenantId
-  } else {
-    console.warn('No tenants for this account')
-  }
+  return activeTenant;
 }
 
 const getOrganisation = async (tenantId) => {
@@ -62,7 +57,7 @@ app.get('/callback', async (req, res) => {
   const { id_token } = await xero.apiCallback(req.url);
   const { given_name, family_name, email } = jwtDecode(id_token);
 
-  const tenantId = getTenantId()
+  const tenantId = await getTenantId()
   const organisation = await getOrganisation(tenantId);
   const contactsCount = await getContactsCount(tenantId);
 
