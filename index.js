@@ -67,27 +67,7 @@ app.get('/callback', async (req, res) => {
     console.log('getting contact counts')
     const contactsCount = await getContactsCount(tenantId);
     console.log('count: ', contactsCount)
-    res.send(`
-      <html>
-        <body>
-          <div>
-            first name: ${given_name}
-          </div>
-          <div>
-            last name: ${family_name}
-          </div>
-          <div>
-            email: ${email}
-          </div>
-          <div>
-            company name: ${JSON.stringify(organisation.name)}
-          </div>
-          <div>
-            number of employees: ${contactsCount}
-          </div>
-        </body>
-      </html>
-    `)
+    res.redirect(`https://yordex.com/book-a-demo?lastName=${encodeURIComponent(family_name)}&firstName=${encodeURIComponent(given_name)}&email=${encodeURIComponent(email)}&company=${encodeURIComponent(organisation.name)}`)
   } catch (error) {
     console.error(error)
     res.send('Error occurred! ☠')
