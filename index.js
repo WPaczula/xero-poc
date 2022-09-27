@@ -37,6 +37,7 @@ const getContactsCount = async (tenantId) => {
 
   while (shouldContinue) {
     const contactsPerPage = (await xero.accountingApi.getContacts(tenantId, undefined, undefined, undefined, undefined, page)).body.contacts;
+    console.log('contacts per page', page, contactsPerPage)
 
     if (contactsPerPage && contactsPerPage.length) {
       page += 1;
@@ -79,7 +80,7 @@ app.get('/callback', async (req, res) => {
             email: ${email}
           </div>
           <div>
-            company name: ${JSON.stringify(organisation || {})}
+            company name: ${JSON.stringify(organisation.name)}
           </div>
           <div>
             number of employees: ${contactsCount}
