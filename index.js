@@ -22,7 +22,7 @@ const getTenantId = async () => {
   await xero.updateTenants(false);
   const activeTenant = xero.tenants[0];
 
-  return activeTenant;
+  return activeTenant.tenantId;
 }
 
 const getOrganisation = async (tenantId) => {
