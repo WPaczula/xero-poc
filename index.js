@@ -9,13 +9,13 @@ const xero = new XeroClient({
   clientId: '7B0DDDBFA1C04610AD6E4EC9AF452CA7',
   clientSecret: 'MCeAoRQuLdSP7GvsoxCAQmMUWewBg1sZJqRP6ERFkf1uYJeN',
   redirectUris: [`https://xero-poc.herokuapp.com/callback`],
-  scopes: 'openid profile email offline_access'.split(" "),
+  scopes: 'openid profile email offline_access accounting.settings'.split(" "),
 });
 
 const app = express();
 
 app.get('/', (req, res) => {
-  res.redirect('https://login.xero.com/identity/connect/authorize?response_type=code&client_id=7B0DDDBFA1C04610AD6E4EC9AF452CA7&redirect_uri=https://xero-poc.herokuapp.com/callback&scope=offline_access openid profile email accounting.transactions accounting.settings accounting.contacts.read')
+  res.redirect('https://login.xero.com/identity/connect/authorize?response_type=code&client_id=7B0DDDBFA1C04610AD6E4EC9AF452CA7&redirect_uri=https://xero-poc.herokuapp.com/callback&scope=offline_access openid profile email accounting.settings')
 })
 
 const getTenantId = async () => {
