@@ -1,6 +1,7 @@
 const { XeroClient } = require('xero-node');
 const express = require('express');
 const path = require('path');
+const jwtDecode = require('jwt-decode');
 
 const port = process.env.PORT || 8080;
 
@@ -17,8 +18,10 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '/public/index.html'))
 })
 
-app.get('/callback', (req, res) => {
-  res.sendFile(path.join(__dirname, '/public/callback.html'))
+app.get('/callback', async (req, res) => {
+  const { id_token } = await xero.apiCallback(req.url);
+  const decodedJwt = jwtDecode(id_token);
+  res.send(`id_token: id_token, decodedJwt: ${JSON.stringify(decodedJwt)}`);
 })
 
 app.listen(port);
