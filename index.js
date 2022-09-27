@@ -20,8 +20,47 @@ app.get('/', (req, res) => {
 
 app.get('/callback', async (req, res) => {
   const { id_token } = await xero.apiCallback(req.url);
-  const decodedJwt = jwtDecode(id_token);
-  res.send(`id_token: id_token, decodedJwt: ${JSON.stringify(decodedJwt)}`);
+  const { given_name, family_name, email } = jwtDecode(id_token);
+
+  const sortedTenants = xero.tenants.sort((tenantA, tenantB) => new Date(tenantA.updatedDateUtc) < new Date(tenantB.updatedDateUtc));
+  const { tenantId } = sortedTenants[sortedTenants.length - 1];
+  const organisation = (await xero.accountingApi.getOrganisations(tenantId)).body.organisations[0];
+
+  const contactsCount = 0;
+  let page = 1;
+  let shouldContinue = true;
+  while (shouldContinue) {
+    const contactsPerPage = (await xero.accountingApi.getContacts(tenantId, undefined, undefined, undefined, undefined, page)).body.contacts;
+
+    if (contactsPerPage && contactsPerPage.length) {
+      page += 1;
+      contactsCount += contactsPerPage.length
+    } else {
+      shouldContinue = false
+    }
+  }
+
+  res.send(`
+    <html>
+      <body>
+        <div>
+          first name: ${given_name}
+        </div>
+        <div>
+          last name: ${family_name}
+        </div>
+        <div>
+          email: ${email}
+        </div>
+        <div>
+          company name: ${JSON.stringify(organisation)}
+        </div>
+        <div>
+          number of employees: ${contactsCount}
+        </div>
+      </body>
+    </html>
+  `)
 })
 
 app.listen(port);
