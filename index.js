@@ -45,7 +45,7 @@ app.get('/callback', async (req, res) => {
     console.log('organisation: ', organisation)
     console.log('======================================')
     console.log('redirect')
-    res.redirect(`https://yordex.webflow.io/book-a-demo?lastName=${encodeURIComponent(family_name)}&firstName=${encodeURIComponent(given_name)}&email=${encodeURIComponent(email)}&company=${encodeURIComponent(organisation.name)}`)
+    res.redirect(`https://yordex.webflow.io/book-a-demo?lastName=${encodeURIComponent(family_name)}&firstName=${encodeURIComponent(given_name)}&email=${encodeURIComponent(email)}&company=${encodeURIComponent(organisation.legalName)}`)
   } catch (error) {
     console.error(error)
     res.send('Error occurred! ☠')
