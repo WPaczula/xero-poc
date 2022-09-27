@@ -19,18 +19,17 @@ app.get('/', (req, res) => {
 })
 
 const getTenantId = async () => {
+  console.log('refreshing tenants')
   await xero.updateTenants(false);
   const activeTenant = xero.tenants[0];
+  console.log(`active tenant: ${activeTenant}`)
 
   return activeTenant;
 }
 
 const getOrganisation = async (tenantId) => {
-  if (!tenantId) {
-    return
-  }
-
   const organisation = (await xero.accountingApi.getOrganisations(tenantId)).body.organisations[0];
+  console.log(`organisation ${JSON.stringify(organisation)}`)
   return organisation
 }
 
@@ -41,6 +40,7 @@ const getContactsCount = async (tenantId) => {
 
   while (shouldContinue) {
     const contactsPerPage = (await xero.accountingApi.getContacts(tenantId, undefined, undefined, undefined, undefined, page)).body.contacts;
+    console.log(`contacts on page ${page}: ${JSON.stringify(contactsPerPage)}`)
 
     if (contactsPerPage && contactsPerPage.length) {
       page += 1;
@@ -57,9 +57,15 @@ app.get('/callback', async (req, res) => {
   const { id_token } = await xero.apiCallback(req.url);
   const { given_name, family_name, email } = jwtDecode(id_token);
 
-  const tenantId = await getTenantId()
-  const organisation = await getOrganisation(tenantId);
-  const contactsCount = await getContactsCount(tenantId);
+  try {
+    const tenantId = await getTenantId()
+    const organisation = await getOrganisation(tenantId);
+    const contactsCount = await getContactsCount(tenantId);
+  } catch (error) {
+    console.error(error)
+    res.send('Error occurred! ☠')
+    return
+  }
 
   res.send(`
     <html>
