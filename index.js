@@ -19,17 +19,14 @@ app.get('/', (req, res) => {
 })
 
 const getTenantId = async () => {
-  console.log('refreshing tenants')
   await xero.updateTenants(false);
   const activeTenant = xero.tenants[0];
-  console.log(`active tenant: ${activeTenant}`)
 
   return activeTenant;
 }
 
 const getOrganisation = async (tenantId) => {
   const organisation = (await xero.accountingApi.getOrganisations(tenantId)).body.organisations[0];
-  console.log(`organisation ${JSON.stringify(organisation)}`)
   return organisation
 }
 
@@ -40,7 +37,6 @@ const getContactsCount = async (tenantId) => {
 
   while (shouldContinue) {
     const contactsPerPage = (await xero.accountingApi.getContacts(tenantId, undefined, undefined, undefined, undefined, page)).body.contacts;
-    console.log(`contacts on page ${page}: ${JSON.stringify(contactsPerPage)}`)
 
     if (contactsPerPage && contactsPerPage.length) {
       page += 1;
@@ -58,36 +54,44 @@ app.get('/callback', async (req, res) => {
   const { given_name, family_name, email } = jwtDecode(id_token);
 
   try {
+    console.log('======================================')
+    console.log('getting tenant')
     const tenantId = await getTenantId()
+    console.log('tenantId:', tenantId)
+    console.log('======================================')
+    console.log('getting organisation')
     const organisation = await getOrganisation(tenantId);
+    console.log('organisation: ', organisation)
+    console.log('======================================')
+    console.log('getting contact counts')
     const contactsCount = await getContactsCount(tenantId);
+    console.log('count: ', contactsCount)
+    res.send(`
+      <html>
+        <body>
+          <div>
+            first name: ${given_name}
+          </div>
+          <div>
+            last name: ${family_name}
+          </div>
+          <div>
+            email: ${email}
+          </div>
+          <div>
+            company name: ${JSON.stringify(organisation || {})}
+          </div>
+          <div>
+            number of employees: ${contactsCount}
+          </div>
+        </body>
+      </html>
+    `)
   } catch (error) {
     console.error(error)
     res.send('Error occurred! ☠')
     return
   }
-
-  res.send(`
-    <html>
-      <body>
-        <div>
-          first name: ${given_name}
-        </div>
-        <div>
-          last name: ${family_name}
-        </div>
-        <div>
-          email: ${email}
-        </div>
-        <div>
-          company name: ${JSON.stringify(organisation || {})}
-        </div>
-        <div>
-          number of employees: ${contactsCount}
-        </div>
-      </body>
-    </html>
-  `)
 })
 
 app.listen(port);
